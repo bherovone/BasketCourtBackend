@@ -28,19 +28,20 @@ const getallusers = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  console.log("Login request received:", req.body);
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(400).send({message:"Incorrect credentials"});
+      return res.status(400).send({success: false, message:"Incorrect credentials"});
     }
 
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).send({message: "Incorrect credentials"});
+      return res.status(400).send({success: false, message: "Incorrect credentials"});
     }
 
     if (user.status !== 'active') {
-      return res.status(403).send({message:"Account is not active"});
+      return res.status(403).send({success: false, message:"Account is not active"});
     }
 
     const token = jwt.sign(
@@ -48,11 +49,11 @@ const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2 days" }
     );
-
-    return res.status(200).send({ message: "User logged in successfully", token });
+    user.password = undefined;
+    return res.status(200).send({ success: true, message: "User logged in successfully great", token, user});
   } catch (error) {
     console.error("Error logging in:", error);
-    return res.status(500).send("Unable to login user");
+    return res.status(500).send({ success: false, message:"Unable to login user"});
   }
 };
 
@@ -61,7 +62,7 @@ const register = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
-      return res.status(400).send("Email already exists");
+      return res.status(400).send({ message:"Email already exists"});
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -69,12 +70,12 @@ const register = async (req, res) => {
     const result = await newUser.save();
 
     if (!result) {
-      return res.status(500).send("Unable to register user");
+      return res.status(500).send({ message:"Unable to register user"});
     }
 
-    return res.status(201).send("User registered successfully");
+    return res.status(201).send({ message:"User registered successfully", success:true});
   } catch (error) {
-    return res.status(500).send("Unable to register user");
+    return res.status(500).send({ message:"Unable to register user"});
   }
 };
 
