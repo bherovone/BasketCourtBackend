@@ -28,16 +28,16 @@ app.use('/api/v1/entries', require("./routes/entryRoutes"));
 
 
 //Home
-app.get("/", (req, res)=>{
+// app.get("/", (req, res)=>{
 
-  res.status(200).send({
+//   res.status(200).send({
 
-    "success" : true,
-    "msg": "node server running"
+//     "success" : true,
+//     "msg": "node server running"
     
-  })
+//   })
   
-})
+// })
 
 //PORT
 const PORT = process.env.PORT || 8080;
@@ -48,8 +48,8 @@ app.listen(PORT, () => {
 });
 
 
-// app.use(express.static(path.join(__dirname, "./admin/build")));
+app.use(express.static(path.join(__dirname, "./admin/build")));
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "./admin/build/index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./admin/build/index.html"));
+});
