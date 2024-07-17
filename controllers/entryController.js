@@ -1,5 +1,5 @@
 const Entry = require("../models/entryModel"); // Assuming your Entry model is in the models folder
-const mongoose = require('mongoose');
+
 
 // Create a new entry
 const createEntry = async (req, res) => {
