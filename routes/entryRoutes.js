@@ -1,20 +1,23 @@
 const express = require('express');
-const router = express.Router();
+const { auth, checkAdmin } = require("../middleware/auth");
+const entryRouter = express.Router();
 const entryController = require('../controllers/entryController'); // Assuming your controller is in the controllers folder
 
 // Create a new entry
-router.post('/', entryController.createEntry);
+entryRouter.post('/',auth, entryController.createEntry);
 
 // Get all entries
-router.get('/', entryController.getAllEntries);
+entryRouter.get('/',auth, entryController.getAllEntries);
 
 // Get a single entry by ID
-router.get('/:id', entryController.getEntryById);
+entryRouter.get('/:id',auth, entryController.getEntryById);
 
 // Update an entry by ID
-router.put('/:id', entryController.updateEntry);
+entryRouter.put('/:id/updateEntry',auth, entryController.updateEntry);
 
 // Delete an entry by ID
-router.delete('/:id', entryController.deleteEntry);
+entryRouter.delete('/:id',auth, entryController.deleteEntry);
 
-module.exports = router;
+entryRouter.get('/:courtId/users',auth, entryController.getCurrentUsers);
+
+module.exports = entryRouter;
