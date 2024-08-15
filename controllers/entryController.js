@@ -44,21 +44,28 @@ const getEntryById = async (req, res) => {
 const updateEntry = async (req, res) => {
   try {
     const { id } = req.params;
-    const { entryTime, exitTime } = req.body;
+    const { exitTime } = req.body;
+
+    // Log the exitTime to verify its value
+    console.log('Received exitTime:', exitTime);
+
     const updatedEntry = await Entry.findByIdAndUpdate(
       id,
-      { entryTime, exitTime },
+      { exitTime },
       { new: true, runValidators: true }
     ).populate('userId courtId');
+    
     if (!updatedEntry) {
       return res.status(404).json({ message: "Entry not found" });
     }
+    
     return res.status(200).json(updatedEntry);
   } catch (error) {
     console.error("Error updating entry:", error);
     return res.status(500).json({ message: "Error updating entry" });
   }
 };
+
 
 // Delete an entry by ID
 const deleteEntry = async (req, res) => {
@@ -75,10 +82,34 @@ const deleteEntry = async (req, res) => {
   }
 };
 
+
+const getCurrentUsers = async (req, res) => {
+  try {
+    const { courtId } = req.params;
+    const entries = await Entry.find({
+      courtId,
+      exitTime: { $exists: false }
+    }).populate('userId courtId');
+
+    if (entries.length === 0) {
+      return res.status(404).json({ message: "No entries found for this court" });
+    }
+
+    //console.log("Getting all users in court:", entries);
+
+    return res.status(200).json(entries);
+  } catch (error) {
+    console.error("Error fetching entries:", error);
+    return res.status(500).json({ message: "Error fetching entries" });
+  }
+};
+
+
 module.exports = {
   createEntry,
   getAllEntries,
   getEntryById,
   updateEntry,
-  deleteEntry
+  deleteEntry,
+  getCurrentUsers
 };
