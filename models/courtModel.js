@@ -10,7 +10,12 @@ const courtSchema = new Schema(
         type: [Number], // [longitude, latitude]
         required: true,
       }
-    }
+    },
+    user_id: {
+      type: Schema.Types.ObjectId, // Assuming you're storing user IDs as ObjectId
+      ref: "User", // Reference to the User model
+      required: true,
+    },
   },
   { timestamps: true }
 );
