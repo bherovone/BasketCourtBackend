@@ -27,6 +27,7 @@ app.use("/api/v1/court", require("./routes/courtRoutes"));
 app.use('/api/v1/entries', require("./routes/entryRoutes"));
 app.use('/api/v1/points', require("./routes/pointRoutes"));
 app.use('/api/v1/locations', require("./routes/locationRoutes"));
+app.use('/api/v1/events', require("./routes/eventRoutes"));
 
 //Home
 // app.get("/", (req, res)=>{
