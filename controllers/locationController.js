@@ -6,7 +6,7 @@ const createlocation = async (req, res) => {
     const data = req.body; // Assuming data comes from the request body
     const newLocation = new Location(data);
     await newLocation.save();
-    console.log("Location record saved:", newLocation);
+    //console.log("Location record saved:", newLocation);
     return res
       .status(201)
       .json({
