@@ -10,7 +10,7 @@ const createEvent = async (req, res) => {
       timestamp: new Date(),
     });
     await newEvent.save();
-    console.log("Event record saved:", newEvent);
+    //console.log("Event record saved:", newEvent);
     res.status(201).json({
       success: true,
       message: 'Event recorded successfully',

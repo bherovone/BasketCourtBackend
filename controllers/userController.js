@@ -50,6 +50,7 @@ const login = async (req, res) => {
       { expiresIn: "2 days" }
     );
     user.password = undefined;
+    console.log(user);
     return res.status(200).send({ success: true, message: "User logged in successfully great", token, user});
   } catch (error) {
     console.error("Error logging in:", error);

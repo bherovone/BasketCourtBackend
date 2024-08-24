@@ -1,4 +1,5 @@
 const Court = require("../models/courtModel");
+const { findNearbyCourt } = require('../helpers/courtHelper');
 
 const addCourt = async (req, res) => {
   try {
@@ -135,29 +136,9 @@ const checkCourtExist = async (req, res) => {
   try {
 
     const { latitude, longitude } = req.query;
-    // Convert latitude and longitude to numbers
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
-
-    if (isNaN(lat) || isNaN(lon)) {
-      throw new Error("Invalid latitude or longitude");
-    }
-
-    console.log(`Checking for court near Latitude: ${lat}, Longitude: ${lon}`);
-
-    // Find the court within a certain distance (e.g., 200 meters)
-    const distanceInMeters = 200; // Adjust the distance as needed
-    const court = await Court.findOne({
-      "location.coordinates": {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lon, lat] // [longitude, latitude]
-          },
-          $maxDistance: distanceInMeters
-        }
-      }
-    });
+    
+     // Use the helper function to find the nearby court
+    const court = await findNearbyCourt(latitude, longitude);
 
     if (court) {
       console.log('Court found:', court);
