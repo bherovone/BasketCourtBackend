@@ -29,6 +29,13 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     profilePicture: { type: String },
+    creditPoints: {
+      type: Number,
+      default: 0,
+    },
+    otpCode: {
+      type: String,
+    },
     dateOfBirth: { type: Date },
     status: { type: String, enum: ['active', 'pending'], default: 'pending' },
     settings: {
