@@ -35,11 +35,14 @@ const startTracking = async (req, res) => {
 
     await trackingSession.save();
 
+    const user = await User.findById(user_id);
+
     return res.status(200).json({
       message: "Tracking started successfully",
       trackingSession,
       court,
       activeusers,
+      creditPoints: user.creditPoints,
     });
   } catch (error) {
     console.error("Error in startTracking:", error);
@@ -460,6 +463,11 @@ const performTask = async (req, res) => {
     // Perform the long-running task with court details
     await performLongRunningTask(user_id, location, court, trackingSessionId);
 
+    const user = await User.findById(trackingSession.user_id);
+
+    // Retrieve active users in the same court
+    const activeusers = await getActiveUsersInCourts(court._id);
+
     // Fetch the updated tracking session after the long-running task
     const updatedTrackingSession = await TrackingSession.findById(trackingSessionId);
 
@@ -468,6 +476,8 @@ const performTask = async (req, res) => {
       success: true,
       message: "Location processed successfully",
       trackingSession: updatedTrackingSession, // Return the updated tracking session
+      activeusers,
+      creditPoints: user.creditPoints,
     });
     
 
