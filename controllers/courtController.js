@@ -1,13 +1,15 @@
 const Court = require("../models/courtModel");
-const { findNearbyCourt } = require('../helpers/courtHelper');
+const { findNearbyCourt } = require("../helpers/courtHelper");
 
 const addCourt = async (req, res) => {
   try {
-    const { name, address, latitude, longitude } = req.body;
-
+    const { name, address, latitude, longitude, user_id } = req.body;
+    console.log(name, address, latitude, longitude, user_id);
     // Validate the coordinates
-    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
-      return res.status(400).json({ message: "Latitude and longitude must be numbers" });
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
+      return res
+        .status(400)
+        .json({ message: "Latitude and longitude must be numbers" });
     }
 
     // Create the new court document
@@ -15,8 +17,9 @@ const addCourt = async (req, res) => {
       name,
       location: {
         address,
-        coordinates: [longitude, latitude] // [longitude, latitude]
-      }
+        coordinates: [longitude, latitude], // [longitude, latitude]
+      },
+      user_id,
     });
 
     const savedCourt = await newCourt.save();
@@ -59,8 +62,8 @@ const updateCourt = async (req, res) => {
       name,
       location: {
         address,
-        coordinates: [longitude, latitude] // [longitude, latitude]
-      }
+        coordinates: [longitude, latitude], // [longitude, latitude]
+      },
     };
 
     const updatedCourt = await Court.findByIdAndUpdate(
@@ -134,17 +137,16 @@ const deleteCourt = async (req, res) => {
 
 const checkCourtExist = async (req, res) => {
   try {
-
     const { latitude, longitude } = req.query;
-    
-     // Use the helper function to find the nearby court
+
+    // Use the helper function to find the nearby court
     const court = await findNearbyCourt(latitude, longitude);
 
     if (court) {
-      console.log('Court found:', court);
+      console.log("Court found:", court);
       return res.status(200).json(court);
     } else {
-      console.log('Court not found');
+      console.log("Court not found");
       return res.status(404).json({ message: "Court not found" });
     }
   } catch (error) {
@@ -152,7 +154,6 @@ const checkCourtExist = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 module.exports = {
   addCourt,
