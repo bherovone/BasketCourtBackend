@@ -300,6 +300,49 @@ const getTrackingAppState = async (req, res) => {
   }
 };
 
+const getLatestInfo = async (req, res) => {
+  try {
+    const { user_id, trackingSessionId } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    let trackingSession;
+
+    if (trackingSessionId) {
+      trackingSession = await TrackingSession.findById(trackingSessionId);
+    } else {
+      trackingSession = await TrackingSession.findOne({
+        user_id,
+        is_active: true,
+      });
+    }
+
+    if (!trackingSession) {
+      return res.status(404).json({ message: "Tracking not found" });
+    }
+
+    const user = await User.findById(trackingSession.user_id);
+
+    // Retrieve active users in the same court
+    const activeusers = await getActiveUsersInCourts(trackingSession._id);
+
+
+    res.status(200).json({
+      message: "Tracking state retrieved successfully",
+      trackingSession,
+      creditPoints: user.creditPoints,
+      activeusers
+    });
+
+
+  } catch (error) {
+    console.error("Error in getTrackingState:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // Function to perform the long-running task
 const performLongRunningTask = async (
   user_id,
@@ -547,4 +590,5 @@ module.exports = {
   saveTrackingAppState,
   getTrackingAppState,
   performTask,
+  getLatestInfo,
 };
