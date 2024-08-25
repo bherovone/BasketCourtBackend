@@ -10,6 +10,8 @@ trackingRouter.post("/stop", auth, trackingController.stopTracking);
 trackingRouter.post("/award", auth, trackingController.awardTracking);
 trackingRouter.post("/saveAppState", auth, trackingController.saveTrackingAppState);
 trackingRouter.get("/getAppState", auth, trackingController.getTrackingAppState);
+trackingRouter.post("/performtask", auth, trackingController.performTask);
+
 
 
 module.exports = trackingRouter;
