@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const trackingSessionSchema = new mongoose.Schema({
+const trackingSessionSchema = new Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -15,8 +16,15 @@ const trackingSessionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  last_award_time: {
+    type: Date,
+  },
   end_time: {
     type: Date,
+  },
+  points: {
+    type: Number,
+    default: 0,
   },
   events: [
     {
@@ -38,6 +46,5 @@ const trackingSessionSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-const TrackingSession = mongoose.model('TrackingSession', trackingSessionSchema);
 
-module.exports = TrackingSession;
+module.exports = mongoose.model('TrackingSession', trackingSessionSchema);
