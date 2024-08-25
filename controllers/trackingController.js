@@ -348,7 +348,7 @@ const performOutAction = async (trackingSessionId) => {
     }
 
     // Check if the user has been out of court for more than 10 minutes
-    if (Date.now() - trackingSession.end_time.getTime() > 3 * 60 * 1000) {
+    if (Date.now() - trackingSession.end_time.getTime() > 15 * 60 * 1000) {
       console.log('Out for sure');
     }
   } catch (error) {
@@ -390,7 +390,7 @@ const performInAction = async (trackingSessionId) => {
       const timeSinceLastAward = (currentTime - trackingSession.last_award_time) / 1000; // time in seconds
 
       // Award points if 120 seconds (or 2 minutes) have passed since the last award
-      if (timeSinceLastAward >= 120) {
+      if (timeSinceLastAward >= 1200) {
         trackingSession.points += 1; // Increment points
         trackingSession.last_award_time = currentTime; // Update last award time
 
