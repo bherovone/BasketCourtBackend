@@ -366,10 +366,10 @@ const performLongRunningTask = async (
   console.log('Distance', distance);
 
   if (distance > COURT_RADIUS) {
-    console.log("User is out of court");
+    console.log("User is out of court ", user_id);
     performOutAction(trackingSessionId);
   } else {
-    console.log("User is inside court");
+    console.log("User is inside court ", user_id);
     performInAction(trackingSessionId);
   }
 };
@@ -581,6 +581,16 @@ async function getActiveUsersInCourts(court_id) {
   }
 }
 
+const getAllSessions = async (req, res) => {
+  try {
+    
+    const TrackingSessions = await TrackingSession.find(); // Populate user data if needed
+    res.json(TrackingSessions);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching TrackingSessions', error });
+  }
+};
+
 module.exports = {
   startTracking,
   pauseTracking,
@@ -591,4 +601,5 @@ module.exports = {
   getTrackingAppState,
   performTask,
   getLatestInfo,
+  getAllSessions,
 };
