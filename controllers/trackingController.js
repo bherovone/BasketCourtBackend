@@ -372,6 +372,11 @@ const performLongRunningTask = async (
     console.log("User is inside court ", user_id);
     performInAction(trackingSessionId);
   }
+
+
+  return distance; // Return the distance
+
+
 };
 
 const performOutAction = async (trackingSessionId) => {
@@ -391,7 +396,7 @@ const performOutAction = async (trackingSessionId) => {
     }
 
     // Check if the user has been out of court for more than 10 minutes
-    if (Date.now() - trackingSession.end_time.getTime() > 15 * 60 * 1000) {
+    if (Date.now() - trackingSession.end_time.getTime() > 10 * 60 * 1000) {
       console.log('Out for sure');
     }
   } catch (error) {
@@ -433,7 +438,7 @@ const performInAction = async (trackingSessionId) => {
       const timeSinceLastAward = (currentTime - trackingSession.last_award_time) / 1000; // time in seconds
 
       // Award points if 120 seconds (or 2 minutes) have passed since the last award
-      if (timeSinceLastAward >= 1200) {
+      if (timeSinceLastAward >= 600) {
         trackingSession.points += 1; // Increment points
         trackingSession.last_award_time = currentTime; // Update last award time
 
@@ -504,23 +509,24 @@ const performTask = async (req, res) => {
     }
 
     // Perform the long-running task with court details
-    await performLongRunningTask(user_id, location, court, trackingSessionId);
+    const distance = await performLongRunningTask(user_id, location, court, trackingSessionId);
 
     const user = await User.findById(trackingSession.user_id);
-
+//console.log(user);
     // Retrieve active users in the same court
     const activeusers = await getActiveUsersInCourts(court._id);
 
     // Fetch the updated tracking session after the long-running task
     const updatedTrackingSession = await TrackingSession.findById(trackingSessionId);
-
+    user.password = undefined;
     // Return the updated tracking session data
     res.status(200).send({
       success: true,
       message: "Location processed successfully",
       trackingSession: updatedTrackingSession, // Return the updated tracking session
       activeusers,
-      creditPoints: user.creditPoints,
+      user,
+      distance,
     });
     
 
