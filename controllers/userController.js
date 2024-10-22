@@ -63,7 +63,7 @@ const signup = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
-      return res.status(400).send({ message:"Email already exists"});
+      return res.status(400).send({ success: false, message:"Email already exists"});
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -71,12 +71,12 @@ const signup = async (req, res) => {
     const result = await newUser.save();
 
     if (!result) {
-      return res.status(500).send({ message:"Unable to register user"});
+      return res.status(500).send({ success: false, message:"Unable to register user"});
     }
 
-    return res.status(201).send({ message:"User registered successfully", success:true});
+    return res.status(201).send({ success: true, message:"User registered successfully", success:true});
   } catch (error) {
-    return res.status(500).send({ message:"Unable to register user"});
+    return res.status(500).send({ success: false, message:"Unable to register user"});
   }
 };
 
