@@ -140,7 +140,7 @@ const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-
+    console.log("OTP request received:", req.body, user);
     if (!user) {
       return res.status(404).send({ success: false, message: "User not found" });
     }
