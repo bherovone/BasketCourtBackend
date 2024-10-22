@@ -59,7 +59,7 @@ const login = async (req, res) => {
 };
 
 
-const register = async (req, res) => {
+const signup = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
@@ -134,12 +134,128 @@ const adduser = async (req, res) => {
   }
 };
 
+
+// Send OTP
+const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+
+    const otpCode = 123456;
+    user.otpCode = otpCode;
+    await user.save();
+
+    // Send OTP via email (or SMS if implemented)
+    // await transporter.sendMail({
+    //   from: process.env.EMAIL_USER,
+    //   to: user.email,
+    //   subject: "Your OTP Code",
+    //   text: `Your OTP code is ${otpCode}`,
+    // });
+
+    return res.status(200).send({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).send({ success: false, message: "Error sending OTP" });
+  }
+};
+
+// Verify OTP
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otpCode } = req.body;
+    const user = await User.findOne({ email, otpCode });
+
+    if (!user) {
+      return res.status(400).send({ success: false, message: "Invalid OTP" });
+    }
+
+    // Reset OTP after successful verification
+    user.otpCode = null;
+    user.status = 'active'; // Mark user as active if necessary
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "2 days" });
+
+    return res.status(200).send({ success: true, message: "OTP verified", token });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return res.status(500).send({ success: false, message: "Error verifying OTP" });
+  }
+};
+
+// Forgot Password
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpire = Date.now() + 60 * 60 * 1000; // 1-hour expiry
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = resetTokenExpire;
+    await user.save();
+
+    // Send reset token via email
+    // await transporter.sendMail({
+    //   from: process.env.EMAIL_USER,
+    //   to: user.email,
+    //   subject: "Password Reset Request",
+    //   text: `To reset your password, use the following token: ${resetToken}. It will expire in 1 hour.`,
+    // });
+
+    return res.status(200).send({ success: true, message: "Password reset token sent to email" });
+  } catch (error) {
+    console.error("Error during forgot password:", error);
+    return res.status(500).send({ success: false, message: "Error during forgot password" });
+  }
+};
+
+// Reset Password
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: { $gt: Date.now() }, // Ensure token hasn't expired
+    });
+
+    if (!user) {
+      return res.status(400).send({ success: false, message: "Invalid or expired token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpire = null;
+    await user.save();
+
+    return res.status(200).send({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    console.error("Error during password reset:", error);
+    return res.status(500).send({ success: false, message: "Error during password reset" });
+  }
+};
+
 module.exports = {
   getuser,
   getallusers,
   login,
-  register,
+  signup,
   updateprofile,
   deleteuser,
   adduser,
+  sendOtp,
+  verifyOtp,
+  forgotPassword,
+  resetPassword,
 };
