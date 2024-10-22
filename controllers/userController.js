@@ -74,7 +74,7 @@ const signup = async (req, res) => {
       return res.status(500).send({ success: false, message:"Unable to register user"});
     }
 
-    return res.status(201).send({ success: true, message:"User registered successfully", success:true});
+    return res.status(201).send({ success: true, message:"User registered successfully"});
   } catch (error) {
     return res.status(500).send({ success: false, message:"Unable to register user"});
   }
