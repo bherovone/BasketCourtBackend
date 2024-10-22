@@ -139,7 +139,7 @@ const adduser = async (req, res) => {
 const sendOtp = async (req, res) => {
   console.log("OTP request received:", req.body);
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email, mobile: req.body.mobile });
     
     if (!user) {
       console.log("User not found");
@@ -164,8 +164,8 @@ const sendOtp = async (req, res) => {
 // Verify OTP
 const verifyOtp = async (req, res) => {
   try {
-    const { email, otpCode } = req.body;
-    const user = await User.findOne({ email, otpCode });
+    const { email, mobile, otpCode } = req.body;
+    const user = await User.findOne({ email, mobile ,otpCode });
 
     if (!user) {
       return res.status(400).send({ success: false, message: "Invalid OTP" });
