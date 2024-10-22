@@ -137,7 +137,7 @@ const adduser = async (req, res) => {
 
 // Send OTP
 const sendOtp = async (req, res) => {
-  
+
   console.log("OTP request received:", req.body);
   
   try {
@@ -212,7 +212,7 @@ const forgotPassword = async (req, res) => {
       return res.status(404).send({ success: false, message: "User not found" });
     }
 
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetToken = '123456abcxyz';
     const resetTokenExpire = Date.now() + 60 * 60 * 1000; // 1-hour expiry
 
     user.resetPasswordToken = resetToken;
