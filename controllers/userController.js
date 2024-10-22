@@ -138,7 +138,8 @@ const adduser = async (req, res) => {
 // Send OTP
 const sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email , mobile} = req.body;
+    
     const user = await User.findOne({ email });
     console.log("OTP request received:", req.body, user);
     if (!user) {
