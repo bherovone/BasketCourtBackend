@@ -137,28 +137,41 @@ const adduser = async (req, res) => {
 
 // Send OTP
 const sendOtp = async (req, res) => {
+  
   console.log("OTP request received:", req.body);
+  
   try {
-    const user = await User.findOne({ email: req.body.email, mobile: req.body.mobile });
+    // Create a dynamic filter object based on provided fields
+    const filter = {};
+    if (req.body.email) filter.email = req.body.email;
+    if (req.body.mobile) filter.mobile = req.body.mobile;
+
+    // Find the user by email or mobile
+    const user = await User.findOne(filter);
     
     if (!user) {
       console.log("User not found");
       return res.status(404).send({ success: false, message: "User not found" });
     }
 
-    const otpCode = 123456;  // In real-world, generate dynamic OTP
-    console.log(`Generated OTP: ${otpCode} for user: ${req.body.email}`);
+    // Generate a dynamic OTP (for simplicity, we're using a fixed value here)
+    const otpCode = 123456;  // Ideally, generate a random OTP
+    console.log(`Generated OTP: ${otpCode} for user: ${user.email || user.mobile}`);
 
+    // Save OTP in the user's record
     user.otpCode = otpCode;
     await user.save();
-    console.log(`OTP saved for user: ${user.email}`);
+    
+    console.log(`OTP saved for user: ${user.email || user.mobile}`);
     
     return res.status(200).send({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);
     return res.status(500).send({ success: false, message: "Error sending OTP" });
   }
+
 };
+
 
 
 // Verify OTP
