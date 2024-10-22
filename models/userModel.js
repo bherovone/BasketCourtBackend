@@ -2,11 +2,13 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    fullName: {
+    displayName: {
       type: String,
-      required: [true, "Please add a fullname"],
+      required: [true, "Please add a displayname"],
       trim: true,
-    },
+    },    
+    firstName: { type: String },
+    lastName: { type: String },
     email: {
       type: String,
       required: [true, "Please add an email"],
@@ -36,6 +38,8 @@ const userSchema = new mongoose.Schema(
     otpCode: {
       type: String,
     },
+    resetPasswordToken: { type: String }, 
+    resetPasswordExpire: { type: Date }, 
     dateOfBirth: { type: Date },
     status: { type: String, enum: ['active', 'pending'], default: 'pending' },
     settings: {
