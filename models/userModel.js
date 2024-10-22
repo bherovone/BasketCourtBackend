@@ -6,7 +6,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please add a displayname"],
       trim: true,
-    },    
+    },
+    fullName: { type: String },    
     firstName: { type: String },
     lastName: { type: String },
     email: {
