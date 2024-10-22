@@ -137,37 +137,29 @@ const adduser = async (req, res) => {
 
 // Send OTP
 const sendOtp = async (req, res) => {
-  
   console.log("OTP request received:", req.body);
-  
   try {
-    
-
     const user = await User.findOne({ email: req.body.email });
     
-
     if (!user) {
+      console.log("User not found");
       return res.status(404).send({ success: false, message: "User not found" });
     }
 
-    const otpCode = 123456;
+    const otpCode = 123456;  // In real-world, generate dynamic OTP
+    console.log(`Generated OTP: ${otpCode} for user: ${req.body.email}`);
+
     user.otpCode = otpCode;
     await user.save();
-
-    // Send OTP via email (or SMS if implemented)
-    // await transporter.sendMail({
-    //   from: process.env.EMAIL_USER,
-    //   to: user.email,
-    //   subject: "Your OTP Code",
-    //   text: `Your OTP code is ${otpCode}`,
-    // });
-
+    console.log(`OTP saved for user: ${user.email}`);
+    
     return res.status(200).send({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);
     return res.status(500).send({ success: false, message: "Error sending OTP" });
   }
 };
+
 
 // Verify OTP
 const verifyOtp = async (req, res) => {
