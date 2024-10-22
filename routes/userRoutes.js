@@ -11,10 +11,10 @@ userRouter.post("/signup", userController.signup);
 userRouter.put("/updateprofile", auth, userController.updateprofile);
 userRouter.delete("/deleteuser", auth, checkAdmin, userController.deleteuser); // Only admin can delete a user
 
-userRouter.post("/auth/send-otp", userController.sendOtp); // Send OTP for verification
-userRouter.post("/auth/verify-otp", userController.verifyOtp); // Verify OTP for login or signup
-userRouter.post("/auth/forgot-password", userController.forgotPassword); // Forgot password process
-userRouter.post("/auth/reset-password", userController.resetPassword); // Reset password using token
+userRouter.post("/send-otp", userController.sendOtp); // Send OTP for verification
+userRouter.post("/verify-otp", userController.verifyOtp); // Verify OTP for login or signup
+userRouter.post("/forgot-password", userController.forgotPassword); // Forgot password process
+userRouter.post("/reset-password", userController.resetPassword); // Reset password using token
 
 
 module.exports = userRouter;
