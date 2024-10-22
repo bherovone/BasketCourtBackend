@@ -163,12 +163,16 @@ const sendOtp = async (req, res) => {
 
 // Verify OTP
 const verifyOtp = async (req, res) => {
+
+  console.log("Verify OTP request received:", req.body);
+
   try {
     const { email, mobile, otpCode } = req.body;
+
     const user = await User.findOne({ email, mobile ,otpCode });
 
     if (!user) {
-      return res.status(400).send({ success: false, message: "Invalid OTP" });
+      return res.status(404).send({ success: false, message: "Invalid OTP" });
     }
 
     // Reset OTP after successful verification
