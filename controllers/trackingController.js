@@ -587,6 +587,16 @@ async function getActiveUsersInCourts(court_id) {
   }
 }
 
+const getUserSessions = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+    const TrackingSessions = await TrackingSession.find({user_id}); // Populate user data if needed
+    res.json(TrackingSessions);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching TrackingSessions', error });
+  }
+};
+
 const getAllSessions = async (req, res) => {
   try {
     
@@ -607,5 +617,6 @@ module.exports = {
   getTrackingAppState,
   performTask,
   getLatestInfo,
+  getUserSessions,
   getAllSessions,
 };
