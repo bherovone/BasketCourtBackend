@@ -12,7 +12,8 @@ trackingRouter.post("/saveAppState", auth, trackingController.saveTrackingAppSta
 trackingRouter.get("/getAppState", auth, trackingController.getTrackingAppState);
 trackingRouter.post("/performtask", auth, trackingController.performTask);
 trackingRouter.get("/getLatest", auth, trackingController.getLatestInfo);
-
+trackingRouter.get("/sessions", auth, trackingController.getUserSessions);
+trackingRouter.get('/getallsessions',auth, checkAdmin, trackingController.getAllSessions);
 
 
 module.exports = trackingRouter;
