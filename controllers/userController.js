@@ -80,23 +80,27 @@ const signup = async (req, res) => {
   }
 };
 
-const updateprofile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const updates = { ...req.body };
     if (req.body.password) {
       updates.password = await bcrypt.hash(req.body.password, 10);
     }
 
-    const result = await User.findByIdAndUpdate(req.user.userId, updates, { new: true });
+    const result = await User.findByIdAndUpdate(req.locals.userId, updates, { new: true });
 
     if (!result) {
-      return res.status(500).send("Unable to update user");
+      return res.status(500).send({success: false, message: "Unable to update profile"});
     }
 
-    return res.status(200).send("User updated successfully");
+    return res.status(200).send({success: true, message:"Profile updated successfully"});
+
   } catch (error) {
-    return res.status(500).send("Unable to update user");
+    
+    return res.status(500).send({ success: false, message:"Unable to update profile"});
+  
   }
+
 };
 
 const deleteuser = async (req, res) => {
@@ -265,7 +269,7 @@ module.exports = {
   getallusers,
   login,
   signup,
-  updateprofile,
+  updateProfile,
   deleteuser,
   adduser,
   sendOtp,
