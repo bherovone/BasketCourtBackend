@@ -8,7 +8,7 @@ userRouter.get("/getallusers", auth, checkAdmin, userController.getallusers); //
 userRouter.post("/adduser", auth, checkAdmin, userController.adduser); // Only admin can get all users
 userRouter.post("/login", userController.login);
 userRouter.post("/signup", userController.signup);
-userRouter.put("/updateprofile", auth, userController.updateprofile);
+userRouter.put("/update-profile", auth, userController.updateProfile);
 userRouter.delete("/deleteuser", auth, checkAdmin, userController.deleteuser); // Only admin can delete a user
 
 userRouter.post("/send-otp", userController.sendOtp); // Send OTP for verification
