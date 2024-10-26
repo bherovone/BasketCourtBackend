@@ -32,16 +32,31 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(400).send({success: false, message:"Incorrect credentials"});
+      return res.status(400).send({
+        success: false,
+        message: "Incorrect credentials",
+        successCode: 400,
+        errorCode: 'USER_NOT_FOUND', // Specific error code
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).send({success: false, message: "Incorrect credentials"});
+      return res.status(400).send({
+        success: false,
+        message: "Incorrect credentials",
+        successCode: 400,
+        errorCode: 'INVALID_PASSWORD', // Specific error code
+      });
     }
 
     if (user.status !== 'active') {
-      return res.status(403).send({success: false, message:"Account is not active"});
+      return res.status(403).send({
+        success: false,
+        message: "Account is not active",
+        successCode: 403,
+        errorCode: 'ACCOUNT_INACTIVE', // Specific error code
+      });
     }
 
     const token = jwt.sign(
@@ -49,14 +64,27 @@ const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2 days" }
     );
-    user.password = undefined;
+    user.password = undefined; // Don't send back the password
     console.log(user);
-    return res.status(200).send({ success: true, message: "User logged in successfully great", token, user});
+    
+    return res.status(200).send({
+      success: true,
+      message: "User logged in successfully",
+      successCode: 200,
+      token,
+      user,
+    });
   } catch (error) {
     console.error("Error logging in:", error);
-    return res.status(500).send({ success: false, message:"Unable to login user"});
+    return res.status(500).send({
+      success: false,
+      message: "Unable to login user",
+      successCode: 500,
+      errorCode: 'INTERNAL_SERVER_ERROR', // Specific error code
+    });
   }
 };
+
 
 
 const signup = async (req, res) => {
