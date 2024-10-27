@@ -109,27 +109,48 @@ const signup = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
+  console.log("Profile update request received:", req.body);
   try {
+    const userId = req.locals.userId; // Assuming `userId` is set in `req.locals` after auth middleware
     const updates = { ...req.body };
+
+    // Hash password if it's being updated
     if (req.body.password) {
       updates.password = await bcrypt.hash(req.body.password, 10);
     }
 
-    const result = await User.findByIdAndUpdate(req.locals.userId, updates, { new: true });
-
-    if (!result) {
-      return res.status(500).send({success: false, message: "Unable to update profile"});
+    // Find user and apply updates
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+    
+    if (!updatedUser) {
+      return res.status(404).send({
+        success: false,
+        message: "USER_NOT_FOUND",
+        statusCode: 404,
+        errorCode: "USER_NOT_FOUND", // Specific error code
+      });
     }
 
-    return res.status(200).send({success: true, message:"Profile updated successfully"});
+    updatedUser.password = undefined; // Remove password from the response
+    console.log("Updated user profile:", updatedUser);
 
+    return res.status(200).send({
+      success: true,
+      message: "PROFILE_UPDATED_SUCCESS",
+      statusCode: 200,
+      user: updatedUser,
+    });
   } catch (error) {
-    
-    return res.status(500).send({ success: false, message:"Unable to update profile"});
-  
+    console.error("Error updating profile:", error);
+    return res.status(500).send({
+      success: false,
+      message: "UNABLE_UPDATE_PROFILE",
+      statusCode: 500,
+      errorCode: "INTERNAL_SERVER_ERROR", // Specific error code
+    });
   }
-
 };
+
 
 const deleteuser = async (req, res) => {
   try {
