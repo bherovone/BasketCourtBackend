@@ -34,8 +34,8 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).send({
         success: false,
-        message: "Incorrect credentials",
-        successCode: 400,
+        message: "INCORRECT_CREDENTIALS",
+        statusCode: 400,
         errorCode: 'USER_NOT_FOUND', // Specific error code
       });
     }
@@ -44,8 +44,8 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).send({
         success: false,
-        message: "Incorrect credentials",
-        successCode: 400,
+        message: "INCORRECT_CREDENTIALS",
+        statusCode: 400,
         errorCode: 'INVALID_PASSWORD', // Specific error code
       });
     }
@@ -53,8 +53,8 @@ const login = async (req, res) => {
     if (user.status !== 'active') {
       return res.status(403).send({
         success: false,
-        message: "Account is not active",
-        successCode: 403,
+        message: "ACCOUNT_INACTIVE",
+        statusCode: 403,
         errorCode: 'ACCOUNT_INACTIVE', // Specific error code
       });
     }
@@ -69,8 +69,8 @@ const login = async (req, res) => {
     
     return res.status(200).send({
       success: true,
-      message: "User logged in successfully",
-      successCode: 200,
+      message: "LOGGED_IN_SUCCESS",
+      statusCode: 200,
       token,
       user,
     });
@@ -78,8 +78,8 @@ const login = async (req, res) => {
     console.error("Error logging in:", error);
     return res.status(500).send({
       success: false,
-      message: "Unable to login user",
-      successCode: 500,
+      message: "UNABLE_LOGIN",
+      statusCode: 500,
       errorCode: 'INTERNAL_SERVER_ERROR', // Specific error code
     });
   }
