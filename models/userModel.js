@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema(
     otpCode: {
       type: String,
     },
+    gender: {
+      type: String,
+    },
     resetPasswordToken: { type: String }, 
     resetPasswordExpire: { type: Date }, 
     dateOfBirth: { type: Date },
