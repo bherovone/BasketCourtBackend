@@ -9,7 +9,9 @@ const moment = require("moment");
 
 const startTracking = async (req, res) => {
   try {
-    const { user_id, latitude, longitude } = req.body;
+
+    const user_id = req.locals.userId;
+    const { latitude, longitude } = req.body;
 
     if (!user_id || !latitude || !longitude) {
       return res
