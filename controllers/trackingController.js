@@ -26,6 +26,8 @@ const startTracking = async (req, res) => {
       return res.status(404).json({ message: "Court not found" });
     }
 
+    console.log("Getting court:", court);
+
     // Retrieve active users in the same court
     const activeusers = await getActiveUsersInCourts(court._id);
 
