@@ -483,7 +483,9 @@ const performInAction = async (trackingSessionId) => {
 // Function to handle task with court lookup
 const performTask = async (req, res) => {
   try {
-    const { user_id, location, trackingSessionId } = req.body;
+
+    const user_id = req.locals.userId;
+    const { location, trackingSessionId } = req.body;
 
     const newLocation = new Bglocation({
       user_id,
