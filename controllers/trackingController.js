@@ -584,7 +584,7 @@ async function getActiveUsersInCourts(court_id) {
     // Fetch user details
     //const users = await User.find({ _id: { $in: uniqueUserIds } });
 
-    const users = await User.find();
+    const users = await User.find({status: "active",});
 
     return users;
   } catch (error) {
