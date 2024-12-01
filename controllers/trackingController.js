@@ -505,6 +505,9 @@ const performTask = async (req, res) => {
         .send({ success: false, message: "Tracking session not found" });
     }
 
+    trackingSession.last_update_time = new Date();    
+    await trackingSession.save();
+
     const court = await Court.findById(trackingSession.court_id);
 
     if (!court) {
