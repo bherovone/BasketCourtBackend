@@ -19,6 +19,9 @@ const trackingSessionSchema = new Schema({
   last_award_time: {
     type: Date,
   },
+  last_update_time: {
+    type: Date,
+  },
   end_time: {
     type: Date,
   },
