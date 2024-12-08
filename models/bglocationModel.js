@@ -87,7 +87,6 @@ const bglocationSchema = new Schema(
       },
       uuid: {
         type: String,
-        unique: true, // Ensures uniqueness
       },
       event: {
         type: String,
