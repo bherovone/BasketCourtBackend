@@ -485,11 +485,13 @@ const performTask = async (req, res) => {
   try {
 
     const user_id = req.locals.userId;
-    const { location, trackingSessionId } = req.body;
+    const { location, trackingSessionId, event_type } = req.body;
 
     const newLocation = new Bglocation({
       user_id,
       location,
+      trackingSession_id:trackingSessionId,
+      event_type
     });
     await newLocation.save();
 
