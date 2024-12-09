@@ -8,6 +8,15 @@ const bglocationSchema = new Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
+    trackingSession_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TrackingSession",
+      required: true,
+    },
+    event_type: {
+      type: Schema.Types.Mixed, // To accommodate various types of event data
+      required: true,
+    },
     created_at: {
       type: Date,
       default: Date.now,
