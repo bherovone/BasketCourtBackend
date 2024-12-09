@@ -8,6 +8,11 @@ const eventSchema = new Schema(
       ref: 'User', // Reference to the User model
       required: true,
     },
+    trackingSession_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TrackingSession",
+      required: true,
+    },
     type: {
       type: String,
       required: true,
