@@ -87,7 +87,6 @@ const locationSchema = new Schema(
       },
       uuid: {
         type: String,
-        unique: true, // Ensures uniqueness
       },
       event: {
         type: String,
