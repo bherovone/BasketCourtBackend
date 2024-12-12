@@ -47,6 +47,10 @@ const trackingSessionSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  is_stopped: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 
