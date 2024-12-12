@@ -382,7 +382,7 @@ const performLongRunningTask = async (
 
 const checkIdleTracking = async () => {
   try {
-    const trackingSessions = await TrackingSession.find();
+    const trackingSessions = await TrackingSession.find({is_stopped: false});
 
     for (const trackingSession of trackingSessions) {
 
