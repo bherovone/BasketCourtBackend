@@ -385,6 +385,8 @@ const checkIdleTracking = async () => {
     const trackingSessions = await TrackingSession.find();
 
     for (const trackingSession of trackingSessions) {
+
+      if (trackingSession.last_update_time) {
       // Check if last_update_time is greater than 20 minutes ago
       const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
 
@@ -397,6 +399,11 @@ const checkIdleTracking = async () => {
         // Save the updated tracking session
         await trackingSession.save();
       }
+
+    } else {
+      console.log('last_update_time is not set for this tracking session');
+    }
+
     }
   } catch (error) {
     console.error("Error checking idle tracking:", error.message);
