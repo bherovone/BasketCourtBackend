@@ -9,7 +9,6 @@ const moment = require("moment");
 
 const startTracking = async (req, res) => {
   try {
-
     const user_id = req.locals.userId;
     const { latitude, longitude } = req.body;
 
@@ -332,15 +331,12 @@ const getLatestInfo = async (req, res) => {
     // Retrieve active users in the same court
     const activeusers = await getActiveUsersInCourts(trackingSession._id);
 
-
     res.status(200).json({
       message: "Tracking state retrieved successfully",
       trackingSession,
       creditPoints: user.creditPoints,
-      activeusers
+      activeusers,
     });
-
-
   } catch (error) {
     console.error("Error in getTrackingState:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -367,7 +363,7 @@ const performLongRunningTask = async (
     courtLongitude
   );
 
-  console.log('Distance', distance);
+  console.log("Distance", distance);
 
   if (distance > COURT_RADIUS) {
     console.log("User is out of court ", user_id);
@@ -377,10 +373,7 @@ const performLongRunningTask = async (
     performInAction(trackingSessionId);
   }
 
-
   return distance; // Return the distance
-
-
 };
 
 const performOutAction = async (trackingSessionId) => {
@@ -396,20 +389,18 @@ const performOutAction = async (trackingSessionId) => {
       });
       await trackingSession.save();
 
-      console.log('Out time set');
+      console.log("Out time set");
     }
 
     // Check if the user has been out of court for more than 10 minutes
     if (Date.now() - trackingSession.end_time.getTime() > 10 * 60 * 1000) {
-      console.log('Out for sure');
+      console.log("Out for sure");
     }
   } catch (error) {
     console.error("Error performing out-action:", error.message);
     throw new Error("Error performing out-action");
   }
 };
-
-
 
 const performInAction = async (trackingSessionId) => {
   try {
@@ -439,7 +430,8 @@ const performInAction = async (trackingSessionId) => {
         await trackingSession.save(); // Save initialization
       }
 
-      const timeSinceLastAward = (currentTime - trackingSession.last_award_time) / 1000; // time in seconds
+      const timeSinceLastAward =
+        (currentTime - trackingSession.last_award_time) / 1000; // time in seconds
 
       // Award points if 120 seconds (or 2 minutes) have passed since the last award
       if (timeSinceLastAward >= 600) {
@@ -465,12 +457,12 @@ const performInAction = async (trackingSessionId) => {
 
         await awardLog.save();
 
-        console.log('Awarded Point');
+        console.log("Awarded Point");
 
         // Save the updated tracking session data
         await trackingSession.save(); // Ensure session is saved with updated award time
       } else {
-        console.log('Not enough time has passed since last award');
+        console.log("Not enough time has passed since last award");
       }
     }
   } catch (error) {
@@ -479,26 +471,24 @@ const performInAction = async (trackingSessionId) => {
   }
 };
 
-
 // Function to handle task with court lookup
 const performTask = async (req, res) => {
   try {
-
     const user_id = req.locals.userId;
     const { location, trackingSessionId, event_type } = req.body;
 
     const newLocation = new Bglocation({
       user_id,
       location,
-      trackingSession_id:trackingSessionId,
-      event_type
+      trackingSession_id: trackingSessionId,
+      event_type,
     });
     await newLocation.save();
 
     // Find the tracking session and associated court ID
     const trackingSession = await TrackingSession.findById(trackingSessionId);
 
-//    console.log("Tracking Session:", trackingSession);
+    //    console.log("Tracking Session:", trackingSession);
 
     if (!trackingSession) {
       console.log("Tracking session not found for ID:", trackingSessionId);
@@ -507,7 +497,7 @@ const performTask = async (req, res) => {
         .send({ success: false, message: "Tracking session not found" });
     }
 
-    trackingSession.last_update_time = new Date();    
+    trackingSession.last_update_time = new Date();
     await trackingSession.save();
 
     const court = await Court.findById(trackingSession.court_id);
@@ -520,27 +510,38 @@ const performTask = async (req, res) => {
     }
 
     // Perform the long-running task with court details
-    const distance = await performLongRunningTask(user_id, location, court, trackingSessionId);
+    const distance = await performLongRunningTask(
+      user_id,
+      location,
+      court,
+      trackingSessionId
+    );
 
     const user = await User.findById(trackingSession.user_id);
-//console.log(user);
+    //console.log(user);
     // Retrieve active users in the same court
     const activeusers = await getActiveUsersInCourts(court._id);
 
     // Fetch the updated tracking session after the long-running task
-    const updatedTrackingSession = await TrackingSession.findById(trackingSessionId);
+    const updatedTrackingSession = await TrackingSession.findById(
+      trackingSessionId
+    );
     user.password = undefined;
+
+    // Merge user.creditPoints and distance with updatedTrackingSession
+    const mergedTrackingSession = {
+      ...updatedTrackingSession.toObject(), // Convert Mongoose document to plain object
+      creditPoints: user.creditPoints,
+      distance,
+    };
+
     // Return the updated tracking session data
     res.status(200).send({
       success: true,
       message: "Location processed successfully",
-      trackingSession: updatedTrackingSession, // Return the updated tracking session
+      trackingSession: mergedTrackingSession, // Return the updated tracking session
       activeusers,
-      user,
-      distance,
     });
-    
-
   } catch (error) {
     console.error("Error processing location:", error);
     res.status(500).send({ success: false, message: "Server error" });
@@ -591,7 +592,7 @@ async function getActiveUsersInCourts(court_id) {
     // Fetch user details
     //const users = await User.find({ _id: { $in: uniqueUserIds } });
 
-    const users = await User.find({status: "active",});
+    const users = await User.find({ status: "active" });
 
     return users;
   } catch (error) {
@@ -603,20 +604,19 @@ async function getActiveUsersInCourts(court_id) {
 const getUserSessions = async (req, res) => {
   try {
     const { user_id } = req.query;
-    const TrackingSessions = await TrackingSession.find({user_id}); // Populate user data if needed
+    const TrackingSessions = await TrackingSession.find({ user_id }); // Populate user data if needed
     res.json(TrackingSessions);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching TrackingSessions', error });
+    res.status(500).json({ message: "Error fetching TrackingSessions", error });
   }
 };
 
 const getAllSessions = async (req, res) => {
   try {
-    
     const TrackingSessions = await TrackingSession.find(); // Populate user data if needed
     res.json(TrackingSessions);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching TrackingSessions', error });
+    res.status(500).json({ message: "Error fetching TrackingSessions", error });
   }
 };
 
