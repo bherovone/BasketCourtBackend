@@ -366,6 +366,8 @@ const performLongRunningTask = async (
 
   console.log("Distance", distance);
 
+  checkIdleTracking();
+
   if (distance > COURT_RADIUS) {
     console.log("User is out of court ", user_id);
     performOutAction(trackingSessionId);
@@ -376,6 +378,31 @@ const performLongRunningTask = async (
 
   return distance; // Return the distance
 };
+
+
+const checkIdleTracking = async () => {
+  try {
+    const trackingSessions = await TrackingSession.find();
+
+    for (const trackingSession of trackingSessions) {
+      // Check if last_update_time is greater than 20 minutes ago
+      const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
+
+      if (new Date(trackingSession.last_update_time).getTime() < twentyMinutesAgo) {
+        // Update tracking session properties
+        trackingSession.end_time = new Date();
+        trackingSession.is_active = false;
+        trackingSession.is_stopped = true;
+
+        // Save the updated tracking session
+        await trackingSession.save();
+      }
+    }
+  } catch (error) {
+    console.error("Error checking idle tracking:", error.message);
+  }
+};
+
 
 const performOutAction = async (trackingSessionId) => {
   try {
