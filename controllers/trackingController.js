@@ -78,6 +78,7 @@ const stopTracking = async (req, res) => {
     }
 
     trackingSession.is_active = false;
+    trackingSession.is_stopped = true;
     trackingSession.end_time = new Date(); // Record the end time
     await trackingSession.save();
 
@@ -395,7 +396,12 @@ const performOutAction = async (trackingSessionId) => {
     // Check if the user has been out of court for more than 10 minutes
     if (Date.now() - trackingSession.end_time.getTime() > 10 * 60 * 1000) {
       console.log("Out for sure");
+      trackingSession.is_active = false;
+      trackingSession.is_stopped = true;
+      await trackingSession.save();
     }
+
+
   } catch (error) {
     console.error("Error performing out-action:", error.message);
     throw new Error("Error performing out-action");
@@ -424,19 +430,26 @@ const performInAction = async (trackingSessionId) => {
     if (trackingSession.is_active) {
       const currentTime = Date.now();
 
-      // Initialize last_award_time if it is not set
+      // Initialize last_award_time if not set
       if (!trackingSession.last_award_time) {
         trackingSession.last_award_time = currentTime;
         await trackingSession.save(); // Save initialization
+        return; // Exit since we just initialized the last_award_time
       }
 
-      const timeSinceLastAward =
-        (currentTime - trackingSession.last_award_time) / 1000; // time in seconds
+      // Calculate elapsed time in seconds since the last award
+      const elapsedSeconds = (currentTime - trackingSession.last_award_time) / 1000;
 
-      // Award points if 120 seconds (or 2 minutes) have passed since the last award
-      if (timeSinceLastAward >= 600) {
-        trackingSession.points += 1; // Increment points
-        trackingSession.last_award_time = currentTime; // Update last award time
+      // Define points per second (e.g., 1 point every 600 seconds)
+      const pointsPerSecond = 1 / 600; // 1 point per 600 seconds
+
+      // Calculate the points to be awarded
+      const pointsToAward = Math.floor(elapsedSeconds * pointsPerSecond);
+
+      if (pointsToAward > 0) {
+        // Increment tracking session points
+        trackingSession.points += pointsToAward;
+        trackingSession.last_award_time = currentTime; // Update the last award time
 
         // Find the user and update their points
         const user = await User.findById(trackingSession.user_id);
@@ -445,24 +458,24 @@ const performInAction = async (trackingSessionId) => {
           throw new Error("User not found");
         }
 
-        user.creditPoints = (user.creditPoints || 0) + 1;
+        user.creditPoints = (user.creditPoints || 0) + pointsToAward;
         await user.save();
 
         // Log the award event
         const awardLog = new AwardLog({
           user_id: user._id,
           trackingSession_id: trackingSession._id,
-          points_awarded: 1,
+          points_awarded: pointsToAward,
         });
 
         await awardLog.save();
 
-        console.log("Awarded Point");
+        console.log(`Awarded ${pointsToAward} point(s)`);
 
         // Save the updated tracking session data
-        await trackingSession.save(); // Ensure session is saved with updated award time
+        await trackingSession.save();
       } else {
-        console.log("Not enough time has passed since last award");
+        console.log("Not enough time has passed to award points");
       }
     }
   } catch (error) {
@@ -470,6 +483,7 @@ const performInAction = async (trackingSessionId) => {
     throw new Error("Error performing in-action");
   }
 };
+
 
 // Function to handle task with court lookup
 const performTask = async (req, res) => {
