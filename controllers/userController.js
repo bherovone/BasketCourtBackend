@@ -122,6 +122,7 @@ const signup = async (req, res) => {
       statusCode: 201,
       user: newUser,
     });
+
   } catch (error) {
     console.error("Error during signup:", error);
     return res.status(500).send({
@@ -174,6 +175,26 @@ const updateProfile = async (req, res) => {
       statusCode: 500,
       errorCode: "INTERNAL_SERVER_ERROR", // Specific error code
     });
+  }
+};
+
+
+
+
+const refreshProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.body.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+      return res.status(200).send({
+      success: true,
+      message: "Profile refreshed successfully",
+      statusCode: 200,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching profile' });
   }
 };
 
@@ -427,6 +448,7 @@ module.exports = {
   getuser,
   getallusers,
   login,
+  refreshProfile,
   signup,
   updateProfile,
   deleteuser,
