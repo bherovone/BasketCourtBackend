@@ -82,6 +82,8 @@ const stopTracking = async (req, res) => {
     trackingSession.end_time = new Date(); // Record the end time
     await trackingSession.save();
 
+    console.log("Tracking stopped successfully:", trackingSessionId);
+
     res.status(200).json({ message: "Tracking stopped successfully" });
   } catch (error) {
     console.error("Error in /stop:", error);
