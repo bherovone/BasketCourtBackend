@@ -475,7 +475,7 @@ const performInAction = async (trackingSessionId) => {
       const elapsedSeconds = (currentTime - trackingSession.last_award_time) / 1000;
 
       // Define points per second (e.g., 1 point every 600 seconds)
-      const pointsPerSecond = 1 / 600; // 1 point per 600 seconds
+      const pointsPerSecond = 1 / 300; // 1 point per 600 seconds
 
       // Calculate the points to be awarded
       const pointsToAward = Math.floor(elapsedSeconds * pointsPerSecond);
