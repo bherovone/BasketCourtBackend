@@ -527,18 +527,8 @@ const performTask = async (req, res) => {
     const user_id = req.locals.userId;
     const { location, trackingSessionId, event_type } = req.body;
 
-    const newLocation = new Bglocation({
-      user_id,
-      location,
-      trackingSession_id: trackingSessionId,
-      event_type,
-    });
-    await newLocation.save();
-
     // Find the tracking session and associated court ID
     const trackingSession = await TrackingSession.findById(trackingSessionId);
-
-    //    console.log("Tracking Session:", trackingSession);
 
     if (!trackingSession) {
       console.log("Tracking session not found for ID:", trackingSessionId);
@@ -547,11 +537,29 @@ const performTask = async (req, res) => {
         .send({ success: false, message: "Tracking session not found" });
     }
 
+    // Check if the session is stopped
+    if (trackingSession.is_stopped) {
+      console.log("Tracking session is stopped:", trackingSessionId);
+      return res
+        .status(400)
+        .send({ success: false, message: "Tracking session is already stopped" });
+    }
+
+    // Save the new location
+    const newLocation = new Bglocation({
+      user_id,
+      location,
+      trackingSession_id: trackingSessionId,
+      event_type,
+    });
+    await newLocation.save();
+
+    // Update the last update time for the tracking session
     trackingSession.last_update_time = new Date();
     await trackingSession.save();
 
+    // Find the court associated with the tracking session
     const court = await Court.findById(trackingSession.court_id);
-
     if (!court) {
       console.log("Court not found for ID:", trackingSession.court_id);
       return res
@@ -559,7 +567,7 @@ const performTask = async (req, res) => {
         .send({ success: false, message: "Court not found" });
     }
 
-    // Perform the long-running task with court details
+    // Perform the long-running task
     const distance = await performLongRunningTask(
       user_id,
       location,
@@ -567,20 +575,29 @@ const performTask = async (req, res) => {
       trackingSessionId
     );
 
+    // Retrieve the user
     const user = await User.findById(trackingSession.user_id);
-    //console.log(user);
-    // Retrieve active users in the same court
-    const activeusers = await getActiveUsersInCourts(court._id);
+    if (!user) {
+      console.log("User not found for ID:", trackingSession.user_id);
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    }
 
-    // Fetch the updated tracking session after the long-running task
+    // Exclude sensitive information
+    user.password = undefined;
+
+    // Get active users in the court
+    const activeUsers = await getActiveUsersInCourts(court._id);
+
+    // Fetch the updated tracking session
     const updatedTrackingSession = await TrackingSession.findById(
       trackingSessionId
     );
-    user.password = undefined;
 
-    // Merge user.creditPoints and distance with updatedTrackingSession
+    // Merge user credit points and distance with tracking session data
     const mergedTrackingSession = {
-      ...updatedTrackingSession.toObject(), // Convert Mongoose document to plain object
+      ...updatedTrackingSession.toObject(),
       creditPoints: user.creditPoints,
       distance,
     };
@@ -589,14 +606,15 @@ const performTask = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Location processed successfully",
-      trackingSession: mergedTrackingSession, // Return the updated tracking session
-      activeusers,
+      trackingSession: mergedTrackingSession,
+      activeUsers,
     });
   } catch (error) {
     console.error("Error processing location:", error);
     res.status(500).send({ success: false, message: "Server error" });
   }
 };
+
 
 const getDistanceFromCourt = (
   latitude,
