@@ -429,12 +429,19 @@ const performOutAction = async (trackingSessionId) => {
       console.log("Out time set");
     }
 
+        // Reload the document to ensure the latest data is fetched
+        await trackingSession.reload();
+
+        console.log("end_time before checking 10 minutes:", new Date(trackingSession.end_time).toLocaleString());
+
     // Check if the user has been out of court for more than 10 minutes
     if (Date.now() - trackingSession.end_time.getTime() > 10 * 60 * 1000) {
       console.log("Out for sure");
-      trackingSession.is_active = false;
-      trackingSession.is_stopped = true;
-      await trackingSession.save();
+      await TrackingSession.findByIdAndUpdate(trackingSessionId, {
+        is_active: false,
+        is_stopped: true,
+      });
+      console.log("is_stopped set to true");
     }
 
 
