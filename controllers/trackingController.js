@@ -469,13 +469,16 @@ const performInAction = async (trackingSessionId) => {
       // Initialize last_award_time if not set
       if (!trackingSession.last_award_time) {
         trackingSession.last_award_time = currentTime;
+        console.log('Initialized last_award_time:', trackingSession.last_award_time);
         await trackingSession.save(); // Save initialization
         return; // Exit since we just initialized the last_award_time
       }
 
+      console.log('Last_award_time:', trackingSession.last_award_time);
+
       // Calculate elapsed time in seconds since the last award
       const elapsedSeconds = (currentTime - trackingSession.last_award_time) / 1000;
-
+      console.log('Elapsed seconds:', elapsedSeconds, 'Current time:', currentTime);
       // Define points per second (e.g., 1 point every 600 seconds)
       const pointsPerSecond = 1 / 300; // 1 point per 600 seconds
 
