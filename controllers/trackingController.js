@@ -381,37 +381,35 @@ const performLongRunningTask = async (
   return distance; // Return the distance
 };
 
-
 const checkIdleTracking = async () => {
   try {
-    const trackingSessions = await TrackingSession.find({is_stopped: false});
+    const trackingSessions = await TrackingSession.find({ is_stopped: false });
 
     for (const trackingSession of trackingSessions) {
-
       if (trackingSession.last_update_time) {
-      // Check if last_update_time is greater than 20 minutes ago
-      const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
+        // Check if last_update_time is greater than 20 minutes ago
+        const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
 
-      if (new Date(trackingSession.last_update_time).getTime() < twentyMinutesAgo) {
-        // Update tracking session properties
-        trackingSession.end_time = new Date();
-        trackingSession.is_active = false;
-        trackingSession.is_stopped = true;
+        if (
+          new Date(trackingSession.last_update_time).getTime() <
+          twentyMinutesAgo
+        ) {
+          // Update tracking session properties
+          trackingSession.end_time = new Date();
+          trackingSession.is_active = false;
+          trackingSession.is_stopped = true;
 
-        // Save the updated tracking session
-        await trackingSession.save();
+          // Save the updated tracking session
+          await trackingSession.save();
+        }
+      } else {
+        console.log("last_update_time is not set for this tracking session");
       }
-
-    } else {
-      console.log('last_update_time is not set for this tracking session');
-    }
-
     }
   } catch (error) {
     console.error("Error checking idle tracking:", error.message);
   }
 };
-
 
 const performOutAction = async (trackingSessionId) => {
   try {
@@ -429,10 +427,13 @@ const performOutAction = async (trackingSessionId) => {
       console.log("Out time set");
     }
 
-        // Reload the document to ensure the latest data is fetched
-        await trackingSession.reload();
+        // Refetch the document to get the latest data
+        trackingSession = await TrackingSession.findById(trackingSessionId);
 
-        console.log("end_time before checking 10 minutes:", new Date(trackingSession.end_time).toLocaleString());
+    console.log(
+      "end_time before checking 10 minutes:",
+      new Date(trackingSession.end_time).toLocaleString()
+    );
 
     // Check if the user has been out of court for more than 10 minutes
     if (Date.now() - trackingSession.end_time.getTime() > 10 * 60 * 1000) {
@@ -443,8 +444,6 @@ const performOutAction = async (trackingSessionId) => {
       });
       console.log("is_stopped set to true");
     }
-
-
   } catch (error) {
     console.error("Error performing out-action:", error.message);
     throw new Error("Error performing out-action");
@@ -476,17 +475,28 @@ const performInAction = async (trackingSessionId) => {
       // Initialize last_award_time if not set
       if (!trackingSession.last_award_time) {
         trackingSession.last_award_time = currentTime;
-        console.log('Initialized last_award_time:', new Date(trackingSession.last_award_time).toLocaleString());
+        console.log(
+          "Initialized last_award_time:",
+          new Date(trackingSession.last_award_time).toLocaleString()
+        );
         await trackingSession.save(); // Save initialization
         return; // Exit since we just initialized the last_award_time
       }
 
-      console.log('Last_award_time:', new Date(trackingSession.last_award_time).toLocaleString());
-
+      console.log(
+        "Last_award_time:",
+        new Date(trackingSession.last_award_time).toLocaleString()
+      );
 
       // Calculate elapsed time in seconds since the last award
-      const elapsedSeconds = (currentTime - trackingSession.last_award_time) / 1000;
-      console.log('Elapsed seconds:', elapsedSeconds, 'Current time:', currentTime);
+      const elapsedSeconds =
+        (currentTime - trackingSession.last_award_time) / 1000;
+      console.log(
+        "Elapsed seconds:",
+        elapsedSeconds,
+        "Current time:",
+        currentTime
+      );
       // Define points per second (e.g., 1 point every 600 seconds)
       const pointsPerSecond = 1 / 300; // 1 point per 600 seconds
 
@@ -531,7 +541,6 @@ const performInAction = async (trackingSessionId) => {
   }
 };
 
-
 // Function to handle task with court lookup
 const performTask = async (req, res) => {
   try {
@@ -553,7 +562,10 @@ const performTask = async (req, res) => {
       console.log("Tracking session is stopped:", trackingSessionId);
       return res
         .status(400)
-        .send({ success: false, message: "Tracking session is already stopped" });
+        .send({
+          success: false,
+          message: "Tracking session is already stopped",
+        });
     }
 
     // Save the new location
@@ -626,7 +638,6 @@ const performTask = async (req, res) => {
   }
 };
 
-
 const getDistanceFromCourt = (
   latitude,
   longitude,
@@ -647,7 +658,6 @@ const getDistanceFromCourt = (
   const distance = R * c; // In meters
   return Math.round(distance); // Rounded to the nearest meter
 };
-
 
 async function getActiveUsersInCourts(court_id) {
   try {
