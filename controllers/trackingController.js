@@ -413,7 +413,7 @@ const checkIdleTracking = async () => {
 
 const performOutAction = async (trackingSessionId) => {
   try {
-    const trackingSession = await TrackingSession.findById(trackingSessionId);
+    let trackingSession = await TrackingSession.findById(trackingSessionId);
 
     if (!trackingSession.end_time || trackingSession.end_time == null) {
       trackingSession.is_active = false;
