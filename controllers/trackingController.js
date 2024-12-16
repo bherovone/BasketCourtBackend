@@ -28,7 +28,7 @@ const startTracking = async (req, res) => {
     console.log("Getting court:", court);
 
     // Retrieve active users in the same court
-    const activeusers = await getActiveUsersInCourts(court._id);
+    const activeusers = await getActiveUsersInCourts(court._id, user_id);
 
     // If a court is found, create a new tracking session
     const trackingSession = new TrackingSession({
@@ -332,7 +332,7 @@ const getLatestInfo = async (req, res) => {
     const user = await User.findById(trackingSession.user_id);
 
     // Retrieve active users in the same court
-    const activeusers = await getActiveUsersInCourts(trackingSession._id);
+    const activeusers = await getActiveUsersInCourts(trackingSession._id, user_id);
 
     res.status(200).json({
       message: "Tracking state retrieved successfully",
@@ -413,7 +413,7 @@ const checkIdleTracking = async () => {
 
 const performOutAction = async (trackingSessionId) => {
   try {
-    const trackingSession = await TrackingSession.findById(trackingSessionId);
+    let trackingSession = await TrackingSession.findById(trackingSessionId);
 
     if (!trackingSession.end_time || trackingSession.end_time == null) {
       trackingSession.is_active = false;
@@ -611,7 +611,7 @@ const performTask = async (req, res) => {
     user.password = undefined;
 
     // Get active users in the court
-    const activeUsers = await getActiveUsersInCourts(court._id);
+    const activeUsers = await getActiveUsersInCourts(court._id, user_id);
 
     // Fetch the updated tracking session
     const updatedTrackingSession = await TrackingSession.findById(
@@ -659,7 +659,7 @@ const getDistanceFromCourt = (
   return Math.round(distance); // Rounded to the nearest meter
 };
 
-async function getActiveUsersInCourts(court_id) {
+async function getActiveUsersInCourts(court_id, user_id) {
   try {
     // Get the current date and time
     const sixHoursAgo = moment().subtract(6, "hours").toDate();
@@ -683,7 +683,8 @@ async function getActiveUsersInCourts(court_id) {
     // Fetch user details
     //const users = await User.find({ _id: { $in: uniqueUserIds } });
 
-    const users = await User.find({ status: "active" });
+    const users = await User.find({ _id: { $ne: user_id } , status: "active"}).select("-password");
+
 
     return users;
   } catch (error) {
