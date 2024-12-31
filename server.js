@@ -30,6 +30,7 @@ app.use('/api/v1/locations', require("./routes/locationRoutes"));
 app.use('/api/v1/events', require("./routes/eventRoutes"));
 app.use('/api/v1/bglocations', require("./routes/bglocationRoutes"));
 app.use("/api/v1/tracking", require("./routes/trackingRoutes"));
+app.use('/api/v1/device', require("./routes/deviceRoutes"));
 
 app.use('/api/v1/current-time', (req, res) => {
   const currentTime = new Date().toISOString(); // Get the current time in ISO 8601 format
@@ -37,6 +38,7 @@ app.use('/api/v1/current-time', (req, res) => {
     serverTime: currentTime
   });
 });
+
 
 
 //Home
